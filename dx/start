@@ -5,7 +5,7 @@
 for arg in "$@"; do
     case $arg in
         --help|-h)
-            echo "Usage: ./dx/run"
+            echo "Usage: ./dx/start"
             echo ""
             echo "Start Docker development container in background mode using docker-compose"
             echo ""
@@ -19,10 +19,11 @@ for arg in "$@"; do
             echo "  --help, -h          Show this help message"
             echo ""
             echo "Examples:"
-            echo "  ./dx/run                    # Start development container"
+            echo "  ./dx/start                  # Start development container"
             echo ""
             echo "After starting:"
             echo "  ./dx/dev                    # Start development server"
+            echo "  ./dx/shell                  # Access container shell"
             echo "  ./dx/test                   # Run tests"
             echo "  ./dx/lint                   # Run linter"
             exit 0
@@ -47,6 +48,7 @@ if docker-compose -f docker-compose.dev.yml up -d; then
     echo ""
     echo "🚀 Next steps:"
     echo "   ./dx/dev     - Start development server"
+    echo "   ./dx/shell   - Access container shell"
     echo "   ./dx/test    - Run tests"
     echo "   ./dx/lint    - Run linter"
     echo ""

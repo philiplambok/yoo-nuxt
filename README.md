@@ -88,23 +88,24 @@ This project includes development tools (DX) for running the application in Dock
 ```bash
 ./dx/build
 ```
-Builds the development Docker image with Debian 12, mise, Node.js 20, and all dependencies.
+Builds the development Docker image with Debian 12, Node.js 20, and all dependencies.
 
-#### Run Container
+#### Start/Stop Container
 ```bash
-./dx/run
+./dx/start
 ```
-Runs the Docker container in background mode (default). This allows other commands like `dx/test` and `dx/lint` to work with the running container.
-
-```bash
-./dx/run --interactive
-```
-Runs the container in interactive/foreground mode.
+Starts the Docker container in background mode. This allows other commands like `dx/dev`, `dx/test` and `dx/lint` to work with the running container.
 
 ```bash
-./dx/run --shell
+./dx/stop
 ```
-Runs the container with shell access for debugging.
+Stops the running Docker container.
+
+#### Access Container Shell
+```bash
+./dx/shell
+```
+Provides interactive shell access to the running container for debugging and manual operations.
 
 
 #### Start Development Server
@@ -158,10 +159,11 @@ Builds the image without using Docker cache - use this when you add new packages
 ### Docker Development Features
 
 - 🐳 **Debian 12** base OS for development compatibility
-- 📦 **mise** for Node.js version management  
+- 📦 **Node.js 20** from official NodeSource repository
 - 🔄 **Live reload** with volume mounting
 - 🚀 **Fast builds** with Docker layer caching
 - 📊 **Build insights** with colored output and usage instructions
+- 🏃 **No rebuild** - containers use pre-built images for speed
 
 ## Getting Help
 
@@ -169,7 +171,9 @@ All DX commands support the `--help` flag for detailed usage information:
 
 ```bash
 ./dx/build --help    # Build command help
-./dx/run --help      # Run command help  
+./dx/start --help    # Start command help
+./dx/stop --help     # Stop command help
+./dx/shell --help    # Shell access help
 ./dx/dev --help      # Development server help
 ./dx/test --help     # Test command help
 ./dx/lint --help     # Lint command help

@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: dx/Dockerfile
+    image: yoo-nuxt-todo:dev
     init: true
     volumes:
       - type: bind

@@ -1,0 +1,45 @@
+#!/bin/bash
+# Access shell inside Docker development container
+
+# Parse arguments for help
+for arg in "$@"; do
+    case $arg in
+        --help|-h)
+            echo "Usage: ./dx/shell"
+            echo ""
+            echo "Access interactive shell inside the running Docker development container"
+            echo ""
+            echo "Prerequisites:"
+            echo "  • Container must be running (use './dx/start' first)"
+            echo ""
+            echo "Options:"
+            echo "  --help, -h          Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  ./dx/shell                  # Access container shell"
+            echo ""
+            echo "Note: If container is not running, start it first with './dx/run'"
+            exit 0
+            ;;
+    esac
+done
+
+# Source common functions
+source "$(dirname "$0")/_common"
+check_docker
+
+echo "🐚 Accessing container shell..."
+echo ""
+
+# Check if container is running
+if ! docker-compose -f docker-compose.dev.yml ps | grep -q "Up"; then
+    echo "❌ Container is not running"
+    echo ""
+    echo "💡 Start the container first:"
+    echo "   ./dx/start"
+    echo ""
+    exit 1
+fi
+
+# Access shell in the running container
+docker-compose -f docker-compose.dev.yml exec app /bin/bash
