@@ -1,0 +1,39 @@
+#!/bin/bash
+# Jump into Docker container shell
+
+# Source common functions
+source "$(dirname "$0")/_common"
+check_docker
+
+# Configuration
+IMAGE_NAME="yoo-nuxt-todo"
+IMAGE_TAG="dev"
+
+echo "🐚 Accessing Docker container shell..."
+echo ""
+
+# Check if container is already running
+RUNNING_CONTAINER=$(docker ps --filter "ancestor=${IMAGE_NAME}:${IMAGE_TAG}" --format "{{.ID}}" | head -n 1)
+
+if [ -n "$RUNNING_CONTAINER" ]; then
+    echo "📦 Found running container: $RUNNING_CONTAINER"
+    echo "🔗 Connecting to existing container..."
+    echo ""
+    
+    # Execute shell in running container
+    docker exec -it "$RUNNING_CONTAINER" sh
+else
+    echo "🚀 No running container found, starting new container..."
+    echo "💡 Container will be removed when you exit the shell"
+    echo ""
+    
+    # Start new container with interactive shell
+    docker run -it --rm \
+        -v "$(pwd):/app" \
+        -v /app/node_modules \
+        "${IMAGE_NAME}:${IMAGE_TAG}" \
+        sh
+fi
+
+echo ""
+echo "👋 Exited container shell"

@@ -137,6 +137,12 @@ The build command also supports a fresh rebuild option:
 ```
 Builds the image without using Docker cache - use this when you add new packages to package.json or want a completely fresh build.
 
+#### Access Container Shell
+```bash
+./dx/shell
+```
+Jump into the Docker container shell for debugging, exploration, or running commands directly inside the container. Automatically connects to a running container or starts a new one.
+
 ### Docker Development Features
 
 - 🐳 **Debian 12** base OS for development compatibility
