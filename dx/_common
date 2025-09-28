@@ -4,13 +4,62 @@
 check_docker() {
     if ! command -v docker &> /dev/null; then
         echo "❌ Docker is not installed or not in PATH"
-        echo "💡 Please install Docker Desktop: https://www.docker.com/products/docker-desktop"
+        echo ""
+        echo "💡 Install Docker Desktop from:"
+        echo "   https://www.docker.com/products/docker-desktop"
+        echo ""
+        echo "📚 For more info: ./dx/help"
         exit 1
     fi
 
     if ! docker info &> /dev/null; then
         echo "❌ Docker daemon is not running"
-        echo "💡 Please start Docker Desktop"
+        echo ""
+        echo "💡 Start Docker Desktop and try again"
+        echo "⏳ Docker may take a few moments to start..."
+        echo ""
+        echo "📚 For more info: ./dx/help"
+        exit 1
+    fi
+
+    if ! command -v docker-compose &> /dev/null; then
+        echo "❌ docker-compose is not installed or not in PATH"
+        echo ""
+        echo "💡 Install docker-compose:"
+        echo "   https://docs.docker.com/compose/install/"
+        echo ""
+        echo "📚 For more info: ./dx/help"
+        exit 1
+    fi
+}
+
+check_container_running() {
+    if ! docker-compose -f docker-compose.dev.yml ps --services --filter "status=running" | grep -q "app"; then
+        echo "❌ Development container is not running"
+        echo ""
+        echo "💡 To fix this, run the container first:"
+        echo "   ./dx/run"
+        echo ""
+        echo "🔍 If you get an image error, build the image first:"
+        echo "   ./dx/build    # Build the Docker image"
+        echo "   ./dx/run      # Then start the container"
+        echo ""
+        echo "📚 For more info: ./dx/help"
+        exit 1
+    fi
+}
+
+check_image_exists() {
+    if ! docker image inspect yoo-nuxt-todo:dev &> /dev/null; then
+        echo "❌ Docker image 'yoo-nuxt-todo:dev' not found"
+        echo ""
+        echo "💡 Build the Docker image first:"
+        echo "   ./dx/build    # This will create the development environment"
+        echo ""
+        echo "⏳ Building may take a few minutes on first run..."
+        echo "📦 After building, you can run: ./dx/run"
+        echo ""
+        echo "📚 For more info: ./dx/help"
         exit 1
     fi
 }

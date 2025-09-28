@@ -1,20 +1,45 @@
 #!/bin/bash
 # Run Vitest test suite
 
+# Parse arguments for help
+for arg in "$@"; do
+    case $arg in
+        --help|-h)
+            echo "Usage: ./dx/test [OPTIONS] [FILE]"
+            echo ""
+            echo "Run Vitest test suite in Docker container"
+            echo ""
+            echo "Options:"
+            echo "  --watch, -w         Run tests in watch mode (auto-rerun on changes)"
+            echo "  --help, -h          Show this help message"
+            echo ""
+            echo "Arguments:"
+            echo "  FILE                Path to specific test file to run"
+            echo ""
+            echo "Examples:"
+            echo "  ./dx/test                       # Run all tests once"
+            echo "  ./dx/test --watch               # Run tests in watch mode"
+            echo "  ./dx/test tests/todo.spec.ts    # Run specific test file"
+            echo "  ./dx/test -w                    # Watch mode (short flag)"
+            echo ""
+            echo "Prerequisites:"
+            echo "  • Container must be running: ./dx/run"
+            exit 0
+            ;;
+    esac
+done
+
 # Source common functions
 source "$(dirname "$0")/_common"
 check_docker
+check_container_running
 
 if [ $# -eq 0 ]; then
     echo "🧪 Running Vitest test suite..."
     echo "💡 Run './dx/test --watch' for watch mode or './dx/test path/to/test.spec.ts' for specific files"
     echo ""
     
-    docker run -i --rm \
-        -v "$(pwd):/app" \
-        -v /app/node_modules \
-        yoo-nuxt-todo:dev \
-        pnpm test
+    docker-compose -f docker-compose.dev.yml exec app pnpm test
 else
     if [[ "$*" == *"--watch"* ]] || [[ "$*" == *"-w"* ]]; then
         echo "🔄 Running Vitest in watch mode..."
@@ -22,19 +47,11 @@ else
         echo "🛑 Press 'q' to quit watch mode"
         echo ""
         
-        docker run -it --rm \
-            -v "$(pwd):/app" \
-            -v /app/node_modules \
-            yoo-nuxt-todo:dev \
-            pnpm test:watch
+        docker-compose -f docker-compose.dev.yml exec app pnpm test:watch
     else
         echo "🧪 Running specific test: $*"
         echo ""
         
-        docker run -i --rm \
-            -v "$(pwd):/app" \
-            -v /app/node_modules \
-            yoo-nuxt-todo:dev \
-            pnpm test "$@"
+        docker-compose -f docker-compose.dev.yml exec app pnpm test "$@"
     fi
 fi

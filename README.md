@@ -90,6 +90,23 @@ This project includes development tools (DX) for running the application in Dock
 ```
 Builds the development Docker image with Debian 12, mise, Node.js 20, and all dependencies.
 
+#### Run Container
+```bash
+./dx/run
+```
+Runs the Docker container in background mode (default). This allows other commands like `dx/test` and `dx/lint` to work with the running container.
+
+```bash
+./dx/run --interactive
+```
+Runs the container in interactive/foreground mode.
+
+```bash
+./dx/run --shell
+```
+Runs the container with shell access for debugging.
+
+
 #### Start Development Server
 ```bash
 ./dx/dev
@@ -137,11 +154,6 @@ The build command also supports a fresh rebuild option:
 ```
 Builds the image without using Docker cache - use this when you add new packages to package.json or want a completely fresh build.
 
-#### Access Container Shell
-```bash
-./dx/shell
-```
-Jump into the Docker container shell for debugging, exploration, or running commands directly inside the container. Automatically connects to a running container or starts a new one.
 
 ### Docker Development Features
 
@@ -150,3 +162,16 @@ Jump into the Docker container shell for debugging, exploration, or running comm
 - 🔄 **Live reload** with volume mounting
 - 🚀 **Fast builds** with Docker layer caching
 - 📊 **Build insights** with colored output and usage instructions
+
+## Getting Help
+
+All DX commands support the `--help` flag for detailed usage information:
+
+```bash
+./dx/build --help    # Build command help
+./dx/run --help      # Run command help  
+./dx/dev --help      # Development server help
+./dx/test --help     # Test command help
+./dx/lint --help     # Lint command help
+./dx/help            # Overview of all commands
+```

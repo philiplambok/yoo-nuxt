@@ -18,11 +18,9 @@ DOCKERFILE_PATH="dx/Dockerfile"
 echo -e "${BLUE}🐳 Building Docker image for Nuxt Todo App${NC}"
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-# Check if Docker is running
-if ! docker info > /dev/null 2>&1; then
-    echo -e "${RED}❌ Docker is not running. Please start Docker and try again.${NC}"
-    exit 1
-fi
+# Source common functions to check Docker
+source "$(dirname "$0")/_common"
+check_docker
 
 # Get the project root directory (parent of dx folder)
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -31,14 +29,37 @@ cd "$PROJECT_ROOT"
 echo -e "${BLUE}📁 Project root: ${PROJECT_ROOT}${NC}"
 echo -e "${BLUE}🔨 Building image: ${IMAGE_NAME}:${IMAGE_TAG}${NC}"
 
-# Check for --no-cache flag
+# Parse arguments
 BUILD_ARGS=""
-if [[ "$*" == *"--no-cache"* ]]; then
-    BUILD_ARGS="--no-cache"
-    echo -e "${BLUE}🧹 Building without cache (fresh build)...${NC}"
-    echo -e "${BLUE}📦 This will reinstall all packages from scratch${NC}"
-    echo ""
-fi
+for arg in "$@"; do
+    case $arg in
+        --no-cache)
+            BUILD_ARGS="--no-cache"
+            echo -e "${BLUE}🧹 Building without cache (fresh build)...${NC}"
+            echo -e "${BLUE}📦 This will reinstall all packages from scratch${NC}"
+            echo ""
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: ./dx/build [OPTIONS]"
+            echo ""
+            echo "Build Docker development image with Debian 12, mise, and Node.js 20"
+            echo ""
+            echo "Options:"
+            echo "  --no-cache          Build without using Docker cache (fresh build)"
+            echo "  --help, -h          Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  ./dx/build                  # Normal build (uses cache)"
+            echo "  ./dx/build --no-cache       # Fresh build without cache"
+            echo ""
+            echo "After building, use:"
+            echo "  ./dx/run                    # Run the container"
+            echo "  ./dx/dev                    # Start development server"
+            exit 0
+            ;;
+    esac
+done
 
 # Build the Docker image
 echo -e "${YELLOW}🏗️  Building Docker image...${NC}"
@@ -61,14 +82,7 @@ echo -e "${BLUE}📊 Image Information:${NC}"
 docker images "${IMAGE_NAME}:${IMAGE_TAG}" --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}"
 
 echo ""
-echo -e "${GREEN}🚀 Ready to run! Use one of these commands:${NC}"
-echo -e "${BLUE}   Development (with volume mount):${NC}"
-echo -e "   docker run -it --rm -p 3000:3000 -v \"\$(pwd):/app\" -v /app/node_modules ${IMAGE_NAME}:${IMAGE_TAG}"
-echo ""
-echo -e "${BLUE}   Production-like (using image files):${NC}"
-echo -e "   docker run -it --rm -p 3000:3000 ${IMAGE_NAME}:${IMAGE_TAG}"
-echo ""
-echo -e "${BLUE}   Interactive shell:${NC}"
-echo -e "   docker run -it --rm ${IMAGE_NAME}:${IMAGE_TAG} sh"
-echo ""
-echo -e "${YELLOW}🌐 Access the app at: http://localhost:3000${NC}"
+echo -e "${GREEN}🚀 Image ready! Next steps:${NC}"
+echo -e "${BLUE}   Run container:    ${NC}./dx/run"
+echo -e "${BLUE}   Development mode: ${NC}./dx/dev"
+echo -e "${BLUE}   Container shell:  ${NC}./dx/run --shell"

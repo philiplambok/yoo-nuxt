@@ -1,9 +1,37 @@
 #!/bin/bash
 # Start Nuxt development server
 
+# Parse arguments
+for arg in "$@"; do
+    case $arg in
+        --help|-h)
+            echo "Usage: ./dx/dev"
+            echo ""
+            echo "Start Nuxt development server with live reload in Docker container"
+            echo ""
+            echo "Features:"
+            echo "  • Live reload with volume mounting"
+            echo "  • Hot module replacement"
+            echo "  • Accessible at http://localhost:3000"
+            echo "  • Press Ctrl+C to stop"
+            echo ""
+            echo "Options:"
+            echo "  --help, -h          Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  ./dx/dev                    # Start development server"
+            echo ""
+            echo "Prerequisites:"
+            echo "  • Container must be running: ./dx/run"
+            exit 0
+            ;;
+    esac
+done
+
 # Source common functions
 source "$(dirname "$0")/_common"
 check_docker
+check_container_running
 
 echo "🚀 Starting Nuxt development server..."
 echo "📡 Server will be accessible at http://localhost:3000"
@@ -11,9 +39,4 @@ echo "🔄 Press Ctrl+C to stop the server"
 echo ""
 
 # Start the development server
-docker run -it --rm \
-    -p 3000:3000 \
-    -v "$(pwd):/app" \
-    -v /app/node_modules \
-    yoo-nuxt-todo:dev \
-    pnpm dev --host 0.0.0.0
+docker-compose -f docker-compose.dev.yml exec app pnpm dev --host 0.0.0.0

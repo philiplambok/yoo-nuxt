@@ -1,9 +1,38 @@
 #!/bin/bash
 # Run ESLint for JavaScript/TypeScript code quality checks
 
+# Parse arguments for help
+for arg in "$@"; do
+    case $arg in
+        --help|-h)
+            echo "Usage: ./dx/lint [OPTIONS]"
+            echo ""
+            echo "Run ESLint for JavaScript/TypeScript code quality checks in Docker container"
+            echo ""
+            echo "Options:"
+            echo "  --fix, -f           Automatically fix fixable style issues"
+            echo "  --help, -h          Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  ./dx/lint                       # Check code quality and style"
+            echo "  ./dx/lint --fix                 # Check and auto-fix issues"
+            echo "  ./dx/lint -f                    # Check and auto-fix (short flag)"
+            echo ""
+            echo "Notes:"
+            echo "  • Auto-fix will modify your code files"
+            echo "  • Review changes before committing"
+            echo ""
+            echo "Prerequisites:"
+            echo "  • Container must be running: ./dx/run"
+            exit 0
+            ;;
+    esac
+done
+
 # Source common functions
 source "$(dirname "$0")/_common"
 check_docker
+check_container_running
 
 # Check if --fix or -f flag is present and convert to proper ESLint command
 if [[ "$*" == *"--fix"* ]] || [[ "$*" == *" -f"* ]] || [[ "$*" == "-f"* ]]; then
@@ -12,11 +41,7 @@ if [[ "$*" == *"--fix"* ]] || [[ "$*" == *" -f"* ]] || [[ "$*" == "-f"* ]]; then
     echo "⚠️  Auto-fix will modify your code files"
     echo ""
     
-    docker run -it --rm \
-        -v "$(pwd):/app" \
-        -v /app/node_modules \
-        yoo-nuxt-todo:dev \
-        pnpm lint:fix
+    docker-compose -f docker-compose.dev.yml exec app pnpm lint:fix
     
     echo ""
     echo "✅ Auto-fix complete! Review changes before committing."
@@ -26,11 +51,7 @@ else
     echo "🔧 Use './dx/lint --fix' or './dx/lint -f' to automatically fix issues"
     echo ""
     
-    docker run -it --rm \
-        -v "$(pwd):/app" \
-        -v /app/node_modules \
-        yoo-nuxt-todo:dev \
-        pnpm lint
+    docker-compose -f docker-compose.dev.yml exec app pnpm lint
     
     echo ""
     echo "✅ Linting complete!"

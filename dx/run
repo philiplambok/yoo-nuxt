@@ -1,0 +1,65 @@
+#!/bin/bash
+# Start Docker development container in detached mode
+
+# Parse arguments for help
+for arg in "$@"; do
+    case $arg in
+        --help|-h)
+            echo "Usage: ./dx/run"
+            echo ""
+            echo "Start Docker development container in background mode using docker-compose"
+            echo ""
+            echo "Features:"
+            echo "  • Starts container in detached mode"
+            echo "  • Volume mounting for live reload"
+            echo "  • Accessible at http://localhost:3000"
+            echo "  • Enables other dx commands (test, lint, dev) to work"
+            echo ""
+            echo "Options:"
+            echo "  --help, -h          Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  ./dx/run                    # Start development container"
+            echo ""
+            echo "After starting:"
+            echo "  ./dx/dev                    # Start development server"
+            echo "  ./dx/test                   # Run tests"
+            echo "  ./dx/lint                   # Run linter"
+            exit 0
+            ;;
+    esac
+done
+
+# Source common functions
+source "$(dirname "$0")/_common"
+check_docker
+check_image_exists
+
+echo "🚀 Starting development container in background..."
+echo "💡 Use './dx/dev' to start the development server after this completes"
+echo ""
+
+# Start containers using docker-compose
+if docker-compose -f docker-compose.dev.yml up -d; then
+    echo ""
+    echo "✅ Container started successfully!"
+    echo "📦 Container is running in background"
+    echo ""
+    echo "🚀 Next steps:"
+    echo "   ./dx/dev     - Start development server"
+    echo "   ./dx/test    - Run tests"
+    echo "   ./dx/lint    - Run linter"
+    echo ""
+    echo "🛑 To stop: ./dx/stop"
+else
+    echo ""
+    echo "❌ Failed to start container"
+    echo ""
+    echo "💡 Possible solutions:"
+    echo "   • Check if image exists: docker images yoo-nuxt-todo:dev"
+    echo "   • Rebuild image: ./dx/build"
+    echo "   • Check Docker logs: docker-compose -f docker-compose.dev.yml logs"
+    echo ""
+    echo "📚 For more info: ./dx/help"
+    exit 1
+fi

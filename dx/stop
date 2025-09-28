@@ -1,0 +1,83 @@
+#!/bin/bash
+# Stop Docker development container
+
+# Parse arguments for help
+for arg in "$@"; do
+    case $arg in
+        --help|-h)
+            echo "Usage: ./dx/stop [OPTIONS]"
+            echo ""
+            echo "Stop Docker development container and clean up resources"
+            echo ""
+            echo "Options:"
+            echo "  --remove, -r        Remove containers after stopping (docker-compose down)"
+            echo "  --help, -h          Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  ./dx/stop                   # Stop containers (keeps them for restart)"
+            echo "  ./dx/stop --remove          # Stop and remove containers"
+            echo "  ./dx/stop -r                # Stop and remove (short flag)"
+            echo ""
+            echo "Notes:"
+            echo "  • Default behavior stops containers but keeps them"
+            echo "  • Use --remove to fully clean up containers"
+            echo "  • After stopping, use ./dx/run to start again"
+            exit 0
+            ;;
+    esac
+done
+
+# Source common functions
+source "$(dirname "$0")/_common"
+check_docker
+
+# Check if containers are running
+if ! docker-compose -f docker-compose.dev.yml ps --services --filter "status=running" | grep -q "app"; then
+    echo "ℹ️  Development container is not running"
+    echo ""
+    echo "💡 To start the container:"
+    echo "   ./dx/run"
+    exit 0
+fi
+
+# Check if --remove or -r flag is present
+if [[ "$*" == *"--remove"* ]] || [[ "$*" == *" -r"* ]] || [[ "$*" == "-r"* ]]; then
+    echo "🛑 Stopping and removing development containers..."
+    echo "💡 This will completely clean up the containers"
+    echo ""
+    
+    if docker-compose -f docker-compose.dev.yml down; then
+        echo ""
+        echo "✅ Containers stopped and removed successfully!"
+        echo "🧹 All container resources have been cleaned up"
+        echo ""
+        echo "🚀 To start again: ./dx/run"
+    else
+        echo ""
+        echo "❌ Failed to stop and remove containers"
+        echo ""
+        echo "💡 Try manually:"
+        echo "   docker-compose -f docker-compose.dev.yml down"
+        exit 1
+    fi
+else
+    echo "🛑 Stopping development containers..."
+    echo "💡 Containers will be kept for quick restart"
+    echo ""
+    
+    if docker-compose -f docker-compose.dev.yml stop; then
+        echo ""
+        echo "✅ Containers stopped successfully!"
+        echo "📦 Containers are preserved for quick restart"
+        echo ""
+        echo "🚀 To start again: ./dx/run"
+        echo "🧹 To remove completely: ./dx/stop --remove"
+    else
+        echo ""
+        echo "❌ Failed to stop containers"
+        echo ""
+        echo "💡 Try manually:"
+        echo "   docker-compose -f docker-compose.dev.yml stop"
+        exit 1
+    fi
+fi
