@@ -1,0 +1,37 @@
+#!/bin/bash
+# Run ESLint for JavaScript/TypeScript code quality checks
+
+# Source common functions
+source "$(dirname "$0")/_common"
+check_docker
+
+# Check if --fix or -f flag is present and convert to proper ESLint command
+if [[ "$*" == *"--fix"* ]] || [[ "$*" == *" -f"* ]] || [[ "$*" == "-f"* ]]; then
+    echo "🔧 Running ESLint with auto-fix..."
+    echo "💡 This will automatically fix fixable style issues"
+    echo "⚠️  Auto-fix will modify your code files"
+    echo ""
+    
+    docker run -it --rm \
+        -v "$(pwd):/app" \
+        -v /app/node_modules \
+        yoo-nuxt-todo:dev \
+        pnpm lint:fix
+    
+    echo ""
+    echo "✅ Auto-fix complete! Review changes before committing."
+else
+    echo "🔍 Running ESLint linter..."
+    echo "💡 This will check JavaScript/TypeScript code style and quality"
+    echo "🔧 Use './dx/lint --fix' or './dx/lint -f' to automatically fix issues"
+    echo ""
+    
+    docker run -it --rm \
+        -v "$(pwd):/app" \
+        -v /app/node_modules \
+        yoo-nuxt-todo:dev \
+        pnpm lint
+    
+    echo ""
+    echo "✅ Linting complete!"
+fi
