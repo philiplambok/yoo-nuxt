@@ -112,6 +112,31 @@ Runs ESLint to check JavaScript/TypeScript code quality and style.
 ```
 Runs ESLint with auto-fix to automatically correct fixable issues.
 
+#### Run Tests
+```bash
+./dx/test
+```
+Runs the Vitest test suite and displays results.
+
+```bash
+./dx/test --watch
+# or
+./dx/test -w
+```
+Runs tests in watch mode - automatically re-runs tests when files change.
+
+```bash
+./dx/test tests/specific-test.spec.ts
+```
+Runs a specific test file.
+
+The build command also supports a fresh rebuild option:
+
+```bash
+./dx/build --no-cache
+```
+Builds the image without using Docker cache - use this when you add new packages to package.json or want a completely fresh build.
+
 ### Docker Development Features
 
 - 🐳 **Debian 12** base OS for development compatibility

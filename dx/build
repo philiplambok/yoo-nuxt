@@ -31,9 +31,23 @@ cd "$PROJECT_ROOT"
 echo -e "${BLUE}📁 Project root: ${PROJECT_ROOT}${NC}"
 echo -e "${BLUE}🔨 Building image: ${IMAGE_NAME}:${IMAGE_TAG}${NC}"
 
+# Check for --no-cache flag
+BUILD_ARGS=""
+if [[ "$*" == *"--no-cache"* ]]; then
+    BUILD_ARGS="--no-cache"
+    echo -e "${BLUE}🧹 Building without cache (fresh build)...${NC}"
+    echo -e "${BLUE}📦 This will reinstall all packages from scratch${NC}"
+    echo ""
+fi
+
 # Build the Docker image
 echo -e "${YELLOW}🏗️  Building Docker image...${NC}"
-if docker build -f "$DOCKERFILE_PATH" -t "${IMAGE_NAME}:${IMAGE_TAG}" .; then
+if [ -z "$BUILD_ARGS" ]; then
+    echo -e "${BLUE}💡 Use './dx/build --no-cache' for fresh build without cache${NC}"
+    echo ""
+fi
+
+if docker build $BUILD_ARGS -f "$DOCKERFILE_PATH" -t "${IMAGE_NAME}:${IMAGE_TAG}" .; then
     echo -e "${GREEN}✅ Docker image built successfully!${NC}"
     echo -e "${GREEN}📦 Image: ${IMAGE_NAME}:${IMAGE_TAG}${NC}"
 else
