@@ -1,34 +1,28 @@
 # Development Dockerfile for Nuxt Todo App
-FROM debian:12
+FROM debian:12-slim
 
 # Set environment variables for development
 ENV NODE_ENV=development
-ENV PATH="/root/.local/bin:/root/.local/share/mise/shims:$PATH"
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Update package lists and install system dependencies
-RUN apt-get update --quiet --yes && \
-    apt-get install --quiet --yes \
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends --allow-unauthenticated \
     curl \
-    build-essential \
-    git \
-    vim \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates \
+    gnupg \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install mise for Node.js version management
-RUN curl https://mise.run | sh && \
-    echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
-
-# Set working directory
-WORKDIR /app
-
-# Copy mise.toml to install Node.js version specified in the file
-COPY mise.toml ./
-RUN mise trust && \
-    mise install && \
-    mise reshim
+# Install Node.js 20
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs
 
 # Install pnpm globally
 RUN npm install -g pnpm
+
+# Set working directory
+WORKDIR /app
 
 # Copy package.json and pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
